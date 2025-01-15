@@ -1,0 +1,22 @@
+{
+    "bendover6671011@gmail.com" : {
+        "name" : "Leng Khai",
+        "stocks" : {
+            "NASDAQ": [
+                "AAPL",
+                "MSFT"
+            ],
+            "NYSE": [
+                "MMC"
+            ]
+        }
+    }, 
+    "e0957288@u.nus.edu" : {
+        "name" : "Leng Khai (university email)",
+        "stocks" : {
+            "NYSE": [
+                "MMC"
+            ]
+        }
+    }    
+}
