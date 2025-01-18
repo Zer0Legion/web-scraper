@@ -1,11 +1,10 @@
 import requests
 import yfinance as yf
 
-from services.Email import EmailService
-from services.Parser import ParserService
-from services.ProjectIo import ProjectIoService
-from services.openai.Prompter import PrompterService
-
+from backend.services.Email import EmailService
+from backend.services.Parser import ParserService
+from backend.services.ProjectIo import ProjectIoService
+from backend.services.openai.Prompter import PrompterService
 URL = "https://www.google.com/finance/quote/"
 URL_NEWS = "https://news.google.com/search?q="
 

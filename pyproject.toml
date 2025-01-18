@@ -12,7 +12,9 @@ dependencies = [
     "requests (>=2.32.3,<3.0.0)",
     "markdown (>=3.7,<4.0)",
     "openai (>=1.59.7,<2.0.0)",
-    "python-dotenv (>=1.0.1,<2.0.0)"
+    "python-dotenv (>=1.0.1,<2.0.0)",
+    "fastapi[standard] (>=0.115.6,<0.116.0)",
+    "pyright (>=1.1.392.post0,<2.0.0)"
 ]
 
 

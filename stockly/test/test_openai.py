@@ -2,7 +2,7 @@ from openai import OpenAI
 from dotenv import dotenv_values
 import requests
 
-from errors.env import CredentialsNotSuppliedError
+from ..backend.errors.env import CredentialsNotSuppliedError
 
 CONFIG = {**dotenv_values(".env")}
 URL = "https://api.openai.com/v1/chat/completions"
