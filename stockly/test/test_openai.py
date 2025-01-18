@@ -2,16 +2,19 @@ from openai import OpenAI
 from dotenv import dotenv_values
 import requests
 
-CONFIG = {
-    **dotenv_values(".env")
-}
+CONFIG = {**dotenv_values(".env")}
 URL = "https://api.openai.com/v1/chat/completions"
 
+
 def main(content):
-    client = OpenAI(organization="Personal", project="Default project", api_key=CONFIG["OPENAI_API_KEY"])
+    client = OpenAI(
+        organization="Personal",
+        project="Default project",
+        api_key=CONFIG["OPENAI_API_KEY"],
+    )
     headers = {
         "Content-Type": "application/json",
-        "Authorization": "Bearer " + CONFIG["OPENAI_API_KEY"]
+        "Authorization": "Bearer " + CONFIG["OPENAI_API_KEY"],
     }
     data = {
         "model": "gpt-4o",
@@ -21,13 +24,12 @@ def main(content):
         "top_p": 1,
         "frequency_penalty": 0,
         "presence_penalty": 0,
-        "response_format": {
-            "type": "text"
-        }
+        "response_format": {"type": "text"},
     }
 
     response = requests.post(URL, headers=headers, json=data)
     print(response.json())
+
 
 if __name__ == "__main__":
     main("""

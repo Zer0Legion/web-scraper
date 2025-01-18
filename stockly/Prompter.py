@@ -2,9 +2,9 @@ from openai import OpenAI
 from dotenv import dotenv_values
 import requests
 
-CONFIG = {
-    **dotenv_values("./.env")
-}
+from errors.env import CredentialsNotSuppliedError
+
+CONFIG = {**dotenv_values("./.env")}
 URL = "https://api.openai.com/v1/chat/completions"
 
 PROMPT = """
@@ -15,12 +15,20 @@ I have scraped several Google News articles related to the stock {}. Please prov
 {}
 """
 
-class Prompter:
 
-
+class PrompterService:
     def __init__(self):
         self.cache = {}
-        self.client = OpenAI(organization="Personal", project="Default project", api_key=CONFIG["OPENAI_API_KEY"])
+
+        if not CONFIG["OPENAI_API_KEY"]:
+            raise CredentialsNotSuppliedError(["open ai api key"])
+        self.api_key = CONFIG["OPENAI_API_KEY"]
+        
+        self.client = OpenAI(
+            organization="Personal",
+            project="Default project",
+            api_key=self.api_key,
+        )
 
     def generate_written_prompt(self, stock, formatted_html):
         """
@@ -32,12 +40,12 @@ class Prompter:
             text = PROMPT.format(stock, formatted_html)
             headers = {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer " + CONFIG["OPENAI_API_KEY"]
+                "Authorization": "Bearer " + self.api_key,
             }
             data = {
                 "model": "gpt-4o-mini",
                 "messages": [{"role": "user", "content": text}],
-                "temperature": 0.7
+                "temperature": 0.7,
             }
 
             response = requests.post(URL, headers=headers, json=data).json()
@@ -67,23 +75,21 @@ class Prompter:
 
         headers = {
             "Content-Type": "application/json",
-            "Authorization": "Bearer " + CONFIG["OPENAI_API_KEY"]
+            "Authorization": "Bearer " + self.api_key,
         }
 
-        data = {
-            "model": "dall-e-3",
-            "prompt": prompt,
-            "size": "1024x1024",
-            "n": 1
-        }
+        data = {"model": "dall-e-3", "prompt": prompt, "size": "1024x1024", "n": 1}
 
-        response = requests.post("https://api.openai.com/v1/images/generations", headers=headers, json=data).json()
+        response = requests.post(
+            "https://api.openai.com/v1/images/generations", headers=headers, json=data
+        ).json()
         print(response)
         image_url = response["data"][0]["url"]
         return image_url
-    
+
+
 if __name__ == "__main__":
-    prompter = Prompter()
+    prompter = PrompterService()
 
     # Positive
     # print(prompter.generate_image_prompt("Sales and Stock Performance: Apple COO Jeffrey Williams sold $24.9 million in stock, while analysts are optimistic about the company's future, with some firms raising their price targets and maintaining buy ratings amid a solid earnings report.", "Positive"))

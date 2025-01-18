@@ -5,9 +5,8 @@ from dotenv import dotenv_values
 
 import markdown
 
-CONFIG = {
-    **dotenv_values("./.env")
-}
+CONFIG = {**dotenv_values("./.env")}
+
 
 def send_email(to_email, subject, body):
     # Email credentials
@@ -19,13 +18,13 @@ def send_email(to_email, subject, body):
 
     # Create the email message
     msg = MIMEMultipart()
-    msg['From'] = from_email
-    msg['To'] = to_email
-    msg['Subject'] = subject
-    msg.attach(MIMEText(html_body, 'html'))
+    msg["From"] = from_email
+    msg["To"] = to_email
+    msg["Subject"] = subject
+    msg.attach(MIMEText(html_body, "html"))
 
     # Connect to the Gmail SMTP server
-    server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+    server = smtplib.SMTP_SSL("smtp.gmail.com", 465)
     server.ehlo()
 
     # Log in to the server
@@ -39,5 +38,10 @@ def send_email(to_email, subject, body):
 
     print("Email sent successfully!")
 
+
 if __name__ == "__main__":
-    send_email("lengkhai@gmail.com", "test subject", "###header\r\nThis is a **test** email with _Markdown_ content.")
+    send_email(
+        "lengkhai@gmail.com",
+        "test subject",
+        "###header\r\nThis is a **test** email with _Markdown_ content.",
+    )
