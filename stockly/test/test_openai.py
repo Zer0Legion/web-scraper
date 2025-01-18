@@ -2,19 +2,25 @@ from openai import OpenAI
 from dotenv import dotenv_values
 import requests
 
+from errors.env import CredentialsNotSuppliedError
+
 CONFIG = {**dotenv_values(".env")}
 URL = "https://api.openai.com/v1/chat/completions"
 
 
 def main(content):
-    client = OpenAI(
+    if not CONFIG["OPENAI_API_KEY"]:
+        raise CredentialsNotSuppliedError(["open ai api key"])
+
+    api_key = CONFIG["OPENAI_API_KEY"]
+    OpenAI(
         organization="Personal",
         project="Default project",
-        api_key=CONFIG["OPENAI_API_KEY"],
+        api_key=api_key,
     )
     headers = {
         "Content-Type": "application/json",
-        "Authorization": "Bearer " + CONFIG["OPENAI_API_KEY"],
+        "Authorization": "Bearer " + api_key,
     }
     data = {
         "model": "gpt-4o",
