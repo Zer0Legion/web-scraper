@@ -3,7 +3,7 @@ import bs4
 
 class ParserService:
     def format_html(self, exchange_stock, long_name, txt):
-        unwanted_elements = [
+        UNWANTED_ELEMENTS = [
             "\n",
             "  More",
             "  ",
@@ -33,6 +33,6 @@ class ParserService:
         aria_labels_string = " ".join(aria_labels_set)
 
         # remove unwanted elements
-        for r in unwanted_elements:
+        for r in UNWANTED_ELEMENTS:
             aria_labels_string = aria_labels_string.replace(r, "")
         return aria_labels_string

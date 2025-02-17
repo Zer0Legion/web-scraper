@@ -1,4 +1,4 @@
-from errors.base import StocklyError
+from .base import StocklyError
 
 
 class CredentialsNotSuppliedError(StocklyError):
@@ -12,7 +12,8 @@ class CredentialsNotSuppliedError(StocklyError):
     """
 
     def __init__(self, missing_credentials: list[str]):
-        super().__init__(errors={"missing credentials": missing_credentials})
+        super().__init__(errors={"missing credentials": missing_credentials}, error_code=400)
+
 
 class EnvironmentVariableNotSuppliedError(StocklyError):
     """
@@ -23,5 +24,6 @@ class EnvironmentVariableNotSuppliedError(StocklyError):
     StocklyError : stockly error
         base stockly error.
     """
+
     def __init__(self, missing_variables: list[str]):
-        super().__init__(errors={"missing variables": missing_variables})
+        super().__init__(errors={"missing variables": missing_variables}, error_code=400)

@@ -3,10 +3,9 @@
 import os
 import json
 from dotenv import dotenv_values
+import requests
 
-from errors.env import EnvironmentVariableNotSuppliedError
-
-
+from ..errors.env import EnvironmentVariableNotSuppliedError
 
 
 class ProjectIoService:
@@ -35,9 +34,7 @@ class ProjectIoService:
         org_name: str = self.org_name
 
         if user_email in self.db:
-            self.content = self.CONTENT_PREFIX.format(
-                self.db[user_email], org_name
-            )
+            self.content = self.CONTENT_PREFIX.format(self.db[user_email], org_name)
         else:
             self.content = self.CONTENT_PREFIX.format(user_email, org_name)
 
@@ -70,3 +67,27 @@ class ProjectIoService:
             filename
         """
         os.makedirs(os.path.dirname(filename), exist_ok=True)
+
+    def download_image(self, image_url: str, filename: str = "filename.jpg") -> str:
+        """
+        Downloads an image from the given URL.
+
+        Parameters
+        ----------
+        image_url : str
+            url of the image
+        filename : str, optional
+            file name, by default "filename"
+        
+        Returns
+        -------
+        str
+            filename
+        """
+        img_data = requests.get(image_url).content
+
+        with open("filename", "wb") as handler:
+            handler.write(img_data)
+        
+        return filename
+    

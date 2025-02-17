@@ -6,10 +6,10 @@ from datetime import date
 
 from dotenv import dotenv_values
 
-from errors.env import CredentialsNotSuppliedError, EnvironmentVariableNotSuppliedError
-
-
-
+from ..errors.env import (
+    CredentialsNotSuppliedError,
+    EnvironmentVariableNotSuppliedError,
+)
 
 
 class EmailService:
@@ -28,9 +28,6 @@ class EmailService:
         self.from_email: str = CONFIG["EMAIL_ADDRESS"]
         self.password: str = CONFIG["EMAIL_PASSWORD"]
 
-        self.message_body = MIMEMultipart()
-
-        
     def send_email(self, to_email: str, body: str):
         # Convert Markdown to HTML
         html_body = markdown.markdown(body)
@@ -38,10 +35,11 @@ class EmailService:
         todays_date = date.today().strftime("%b %d")
 
         # Create the email message
-        self.message_body["From"] = self.from_email
-        self.message_body["To"] = to_email
-        self.message_body["Subject"] = self.SUBJECT.format(self.org_name, todays_date)
-        self.message_body.attach(MIMEText(html_body, "html"))
+        message_body = MIMEMultipart()
+        message_body["From"] = self.from_email
+        message_body["To"] = to_email
+        message_body["Subject"] = self.SUBJECT.format(self.org_name, todays_date)
+        message_body.attach(MIMEText(html_body, "html"))
 
         # Connect to the Gmail SMTP server
         server = smtplib.SMTP_SSL("smtp.gmail.com", 465)
@@ -51,7 +49,7 @@ class EmailService:
         server.login(self.from_email, self.password)
 
         # Send the email
-        server.sendmail(self.from_email, to_email, self.message_body.as_string())
+        server.sendmail(self.from_email, to_email, message_body.as_string())
 
         # Close the connection
         server.quit()

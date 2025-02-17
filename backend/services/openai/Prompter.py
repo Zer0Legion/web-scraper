@@ -2,7 +2,7 @@ from openai import OpenAI
 from dotenv import dotenv_values
 import requests
 
-from errors.env import CredentialsNotSuppliedError
+from backend.errors.env import CredentialsNotSuppliedError
 
 CONFIG = {**dotenv_values("./.env")}
 URL = "https://api.openai.com/v1/chat/completions"
@@ -23,7 +23,7 @@ class PrompterService:
         if not CONFIG["OPENAI_API_KEY"]:
             raise CredentialsNotSuppliedError(["open ai api key"])
         self.api_key = CONFIG["OPENAI_API_KEY"]
-        
+
         self.client = OpenAI(
             organization="Personal",
             project="Default project",
@@ -92,7 +92,7 @@ if __name__ == "__main__":
     prompter = PrompterService()
 
     # Positive
-    # print(prompter.generate_image_prompt("Sales and Stock Performance: Apple COO Jeffrey Williams sold $24.9 million in stock, while analysts are optimistic about the company's future, with some firms raising their price targets and maintaining buy ratings amid a solid earnings report.", "Positive"))
+    print(prompter.generate_image_prompt("Sales and Stock Performance: Apple COO Jeffrey Williams sold $24.9 million in stock, while analysts are optimistic about the company's future, with some firms raising their price targets and maintaining buy ratings amid a solid earnings report.", "Positive"))
 
     # Disastrous
     # print(prompter.generate_image_prompt("On September 15, 2008, Lehman Brothers filed for Chapter 11 bankruptcy protection following the exodus of most of its clients, drastic declines in its stock price, and the devaluation of assets by credit rating agencies. The collapse was largely due to Lehman's involvement in the subprime mortgage crisis and its exposure to less liquid assets.[6][7][8] Lehman's bankruptcy filing was the largest in US history, beating the previous record holder Enron,[9] and is thought to have played a major role in the unfolding of the 2007-2008 financial crisis. The market collapse also gave support to the 'too big to fail' doctrine.[10]", "Disastrous"))

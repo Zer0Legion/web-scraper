@@ -3,8 +3,9 @@ from dotenv import dotenv_values
 
 CONFIG = {**dotenv_values("./.env")}
 
-class InstagramService():
-    def _create_container(self, url: str, caption: str=""):
+
+class InstagramService:
+    def _create_container(self, url: str, caption: str = ""):
         user_id = CONFIG["INSTA_USER_ID"]
         response = requests.post(
             url=f"https://graph.instagram.com/v21.0/{user_id}/media",
@@ -15,7 +16,6 @@ class InstagramService():
             },
         )
         return response.json()
-
 
     def _publish_container(self, container_id: str):
         user_id = CONFIG["INSTA_USER_ID"]
@@ -29,8 +29,7 @@ class InstagramService():
         )
         return response.json()
 
-
-    def publish_image(self, url: str, caption: str="") -> dict | None:
+    def publish_image(self, url: str, caption: str = "") -> dict | None:
         """
         Publishes an image to instagram as a post.
 
