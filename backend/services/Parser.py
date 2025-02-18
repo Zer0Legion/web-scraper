@@ -1,8 +1,10 @@
 import bs4
 
+from objects.requests.stock import StockRequestInfo
+
 
 class ParserService:
-    def format_html(self, exchange_stock, long_name, txt):
+    def format_html(self, stock: StockRequestInfo, txt: str):
         UNWANTED_ELEMENTS = [
             "\n",
             "  More",
@@ -10,8 +12,8 @@ class ParserService:
             "About Google",
             "Get the iOS app",
             "For you",
-            "(" + exchange_stock + ")",
-            long_name,
+            "(" + stock.ticker + ")",
+            stock.long_name,
             "Get the Android app",
             "FollowingSingaporeWorldLocalBusinessTechnologyEntertainmentSportsScienceHealth",
         ]

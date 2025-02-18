@@ -84,14 +84,13 @@ def send_email(
             project_io_service.generate_intro(request.name)
 
             for stock in stocks:
-                stock_info = yf.Ticker(stock.ticker)
-                long_name = stock_info.info["longName"]
 
-                project_io_service.add_next_stock(long_name, stock.full_name)
+                project_io_service.add_next_stock(stock)
 
                 html_response = requests.get(URL_NEWS + stock.full_name).text
+
                 cleaned_html = parser_service.format_html(
-                    stock.full_name, long_name, html_response
+                    stock, html_response
                 )
 
                 chatgpt_response = prompter_service.generate_written_prompt(

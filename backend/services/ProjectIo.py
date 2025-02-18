@@ -5,6 +5,8 @@ import json
 from dotenv import dotenv_values
 import requests
 
+from objects.requests.stock import StockRequestInfo
+
 from ..errors.env import EnvironmentVariableNotSuppliedError
 
 
@@ -38,8 +40,8 @@ class ProjectIoService:
         else:
             self.content = self.CONTENT_PREFIX.format(user_email, org_name)
 
-    def add_next_stock(self, long_name: str, exchange_name: str):
-        self.content += f"## {long_name} ({exchange_name})\n\n"
+    def add_next_stock(self, stock: StockRequestInfo):
+        self.content += f"## {stock.long_name} ({stock.ticker})\n\n"
 
     def print_report(self, data: str):
         self.content += data

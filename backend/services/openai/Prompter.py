@@ -30,14 +30,14 @@ class PrompterService:
             api_key=self.api_key,
         )
 
-    def generate_written_prompt(self, stock, formatted_html):
+    def generate_written_prompt(self, stock_ticker: str, formatted_html: str):
         """
         Generate a written prompt for the stock based on the formatted HTML.
         """
-        if stock in self.cache:
-            return self.cache[stock]
+        if stock_ticker in self.cache:
+            return self.cache[stock_ticker]
         else:
-            text = PROMPT.format(stock, formatted_html)
+            text = PROMPT.format(stock_ticker, formatted_html)
             headers = {
                 "Content-Type": "application/json",
                 "Authorization": "Bearer " + self.api_key,
@@ -49,10 +49,10 @@ class PrompterService:
             }
 
             response = requests.post(URL, headers=headers, json=data).json()
-            self.cache[stock] = response
+            self.cache[stock_ticker] = response
             return response
 
-    def generate_image_prompt(self, text_prompt, sentiment):
+    def generate_image_prompt(self, text_prompt: str, sentiment: str):
         """
         Generate an image prompt based on the text prompt.
         """
