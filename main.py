@@ -12,6 +12,7 @@ from backend.dependencies.base import (
 from backend.errors.base import StocklyError
 from objects.api.response import ErrorResponse, SuccessResponse
 
+from objects.requests.generate_image import GenerateImageRequest
 from objects.requests.send_briefing_email import SendEmailRequest
 from backend.services.Email import EmailService
 from backend.services.Parser import ParserService
@@ -109,3 +110,41 @@ def send_email(
             error_message=str(e)
         )
 
+
+@app.post(
+    path="/prompter/generate_image",
+    dependencies=[
+        Depends(get_prompter_service),
+    ],
+    responses={
+        200: {"model": SuccessResponse},
+        400: {"model": ErrorResponse},
+    },
+)
+def generate_image(
+    param: GenerateImageRequest,
+    prompter_service: PrompterService = Depends(get_prompter_service)
+):
+    """
+    Generate an image based on the text prompt.
+
+    Parameters
+    ----------
+    param : GenerateImageRequest
+        The request object containing the text prompt.
+    prompter_service : PrompterService
+        The prompter service dependency, auto inject by FastAPI.
+    
+    Returns
+    -------
+    SuccessResponse[str]
+        Image generated successfully.
+    """
+    try:
+        image_url = prompter_service.generate_image_prompt(param)
+        return SuccessResponse(data=image_url)
+    except StocklyError as e:
+        return ErrorResponse(
+            error_code=e.error_code,
+            error_message=str(e)
+        )

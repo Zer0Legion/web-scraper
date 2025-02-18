@@ -3,6 +3,7 @@ from dotenv import dotenv_values
 import requests
 
 from backend.errors.env import CredentialsNotSuppliedError
+from objects.requests.generate_image import GenerateImageRequest, SentimentEnum
 
 CONFIG = {**dotenv_values("./.env")}
 URL = "https://api.openai.com/v1/chat/completions"
@@ -52,7 +53,7 @@ class PrompterService:
             self.cache[stock_ticker] = response
             return response
 
-    def generate_image_prompt(self, text_prompt: str, sentiment: str):
+    def generate_image_prompt(self, request: GenerateImageRequest):
         """
         Generate an image prompt based on the text prompt.
         """
@@ -71,7 +72,7 @@ class PrompterService:
         I want to reflect the sentiment of the news articles in the image. The sentiment is {}.
         """
 
-        prompt = TEMPLATE.format(text_prompt, sentiment)
+        prompt = TEMPLATE.format(request.text_prompt, request.sentiment.value)
 
         headers = {
             "Content-Type": "application/json",
