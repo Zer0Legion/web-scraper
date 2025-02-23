@@ -5,6 +5,7 @@ import json
 from dotenv import dotenv_values
 import requests
 
+from backend.errors.project_io import ProjectIOError
 from objects.requests.stock import StockRequestInfo
 
 from ..errors.env import EnvironmentVariableNotSuppliedError
@@ -70,7 +71,7 @@ class ProjectIoService:
         """
         os.makedirs(os.path.dirname(filename), exist_ok=True)
 
-    def download_image(self, image_url: str, filename: str = "filename.jpg") -> str:
+    def download_image(self, image_url: str, filename: str = "filename.png") -> str:
         """
         Downloads an image from the given URL.
 
@@ -85,11 +86,19 @@ class ProjectIoService:
         -------
         str
             filename
-        """
-        img_data = requests.get(image_url).content
 
-        with open("filename", "wb") as handler:
-            handler.write(img_data)
+        Raises
+        ------
+        ProjectIOError
+            If the image could not be downloaded.
+        """
+        try:
+            img_data = requests.get(image_url).content
+
+            with open(filename, "wb") as handler:
+                handler.write(img_data)
+            
+            return filename
+        except Exception as e:
+            raise ProjectIOError(str(e))
         
-        return filename
-    

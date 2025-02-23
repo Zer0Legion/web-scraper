@@ -1,3 +1,4 @@
+from backend.services.aws.s3 import AWSService
 from ..services.Email import EmailService
 from ..services.Parser import ParserService
 from ..services.ProjectIo import ProjectIoService
@@ -27,3 +28,6 @@ def get_prompter_service():
 
 def get_instagram_service():
     return InstagramService()
+
+def get_aws_service():
+    return AWSService()

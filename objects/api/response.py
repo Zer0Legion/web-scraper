@@ -1,8 +1,10 @@
+from typing import Generic, TypeVar
 from pydantic import BaseModel
 
+T = TypeVar('T')
 
-class SuccessResponse(BaseModel):
-    data: str
+class SuccessResponse(BaseModel, Generic[T]):
+    data: T
 
 
 class ErrorResponse(BaseModel):

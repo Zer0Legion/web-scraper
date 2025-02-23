@@ -4,14 +4,18 @@ import yfinance as yf
 from fastapi import Depends, FastAPI, responses
 
 from backend.dependencies.base import (
+    get_aws_service,
     get_email_service,
     get_parser_service,
     get_project_io_service,
     get_prompter_service,
 )
 from backend.errors.base import StocklyError
+from backend.errors.project_io import ProjectIOError
+from backend.services.aws.s3 import AWSService
 from objects.api.response import ErrorResponse, SuccessResponse
 
+from objects.requests.aws_service import UploadImageRequest
 from objects.requests.generate_image import GenerateImageRequest
 from objects.requests.send_briefing_email import SendEmailRequest
 from backend.services.Email import EmailService
@@ -112,7 +116,7 @@ def send_email(
 
 
 @app.post(
-    path="/prompter/generate_image",
+    path="/generate_image",
     dependencies=[
         Depends(get_prompter_service),
     ],
@@ -124,7 +128,7 @@ def send_email(
 def generate_image(
     param: GenerateImageRequest,
     prompter_service: PrompterService = Depends(get_prompter_service)
-):
+) -> SuccessResponse[str] | ErrorResponse:
     """
     Generate an image based on the text prompt.
 
@@ -137,8 +141,8 @@ def generate_image(
     
     Returns
     -------
-    SuccessResponse[str]
-        Image generated successfully.
+    SuccessResponse[str] | ErrorResponse
+        Image generated.
     """
     try:
         image_url = prompter_service.generate_image_prompt(param)
@@ -146,5 +150,64 @@ def generate_image(
     except StocklyError as e:
         return ErrorResponse(
             error_code=e.error_code,
+            error_message=str(e)
+        )
+
+@app.post(
+    path="/save_image",
+    dependencies=[
+        Depends(get_project_io_service),
+    ],
+    responses={
+        200: {"model": SuccessResponse},
+        400: {"model": ErrorResponse},
+    },
+)
+def save_image(
+    url: str,
+    project_io_service: ProjectIoService = Depends(get_project_io_service)
+) -> SuccessResponse[str] | ErrorResponse:
+    """
+    Save an image to the project directory.
+
+    Parameters
+    ----------
+    url : str
+        The url of the image to save.
+    project_io_service : ProjectIoService
+        The project io service dependency, auto inject by FastAPI.
+    """
+    try:
+        filename = project_io_service.download_image(url)
+        return SuccessResponse(data=filename)
+    except ProjectIOError as e:
+        return ErrorResponse(
+            error_code=e.error_code,
+            error_message=str(e)
+        )
+
+@app.post(
+    path="/upload_image",
+    dependencies=[
+        Depends(get_aws_service),
+    ],
+    responses={
+        200: {"model": SuccessResponse},
+        400: {"model": ErrorResponse},
+    },
+)
+def upload_image(
+    param: UploadImageRequest,
+    aws_service: AWSService = Depends(get_aws_service)
+) -> SuccessResponse[str] | ErrorResponse:
+    """
+    Upload an image to an S3 bucket.
+    """
+    try:
+        aws_service.upload_file(param)
+        return SuccessResponse(data="Image uploaded successfully.")
+    except Exception as e:
+        return ErrorResponse(
+            error_code=400,
             error_message=str(e)
         )
