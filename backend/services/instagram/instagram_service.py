@@ -55,4 +55,8 @@ class InstagramService:
             return None
 
 
-# container = create_container("https://transparentimage.s3.us-east-1.amazonaws.com/stockly_1024.png", "Stockly Logo")
+instagram_service = InstagramService()
+container = instagram_service.publish_image(
+    "http://127.0.0.1:8000/instagram_image?url=https%3A%2F%2Fstockly-bendover.s3.us-east-1.amazonaws.com%2F4f7455028d904ee2bd1c86965b1922ad"
+)
+print(container)

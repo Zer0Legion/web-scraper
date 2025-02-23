@@ -2,10 +2,11 @@ from h11 import Response
 import requests
 import yfinance as yf
 from fastapi import Depends, FastAPI, responses
-
+from fastapi import status
 from backend.dependencies.base import (
     get_aws_service,
     get_email_service,
+    get_instagram_service,
     get_parser_service,
     get_project_io_service,
     get_prompter_service,
@@ -13,9 +14,11 @@ from backend.dependencies.base import (
 from backend.errors.base import StocklyError
 from backend.errors.project_io import ProjectIOError
 from backend.services.aws.s3 import AWSService
+from backend.services.instagram.instagram_service import InstagramService
 from objects.api.response import ErrorResponse, SuccessResponse
 
-from objects.requests.aws_service import UploadImageRequest
+from objects.models.aws_service import S3Object
+from objects.requests.aws_service import DeleteImageRequest, UploadImageRequest
 from objects.requests.generate_image import GenerateImageRequest
 from objects.requests.send_briefing_email import SendEmailRequest
 from backend.services.Email import EmailService
@@ -77,7 +80,7 @@ def send_email(
         The project io service dependency, auto inject by FastAPI.
     prompter_service : PrompterService
         The prompter service dependency, auto inject by FastAPI.
-    
+
     Returns
     -------
     SuccessResponse[str]
@@ -89,14 +92,11 @@ def send_email(
             project_io_service.generate_intro(request.name)
 
             for stock in stocks:
-
                 project_io_service.add_next_stock(stock)
 
                 html_response = requests.get(URL_NEWS + stock.full_name).text
 
-                cleaned_html = parser_service.format_html(
-                    stock, html_response
-                )
+                cleaned_html = parser_service.format_html(stock, html_response)
 
                 chatgpt_response = prompter_service.generate_written_prompt(
                     stock.ticker, cleaned_html
@@ -109,10 +109,7 @@ def send_email(
 
         return SuccessResponse(data="Email sent successfully.")
     except StocklyError as e:
-        return ErrorResponse(
-            error_code=e.error_code,
-            error_message=str(e)
-        )
+        return ErrorResponse(error_code=e.error_code, error_message=str(e))
 
 
 @app.post(
@@ -127,7 +124,7 @@ def send_email(
 )
 def generate_image(
     param: GenerateImageRequest,
-    prompter_service: PrompterService = Depends(get_prompter_service)
+    prompter_service: PrompterService = Depends(get_prompter_service),
 ) -> SuccessResponse[str] | ErrorResponse:
     """
     Generate an image based on the text prompt.
@@ -138,7 +135,7 @@ def generate_image(
         The request object containing the text prompt.
     prompter_service : PrompterService
         The prompter service dependency, auto inject by FastAPI.
-    
+
     Returns
     -------
     SuccessResponse[str] | ErrorResponse
@@ -148,10 +145,8 @@ def generate_image(
         image_url = prompter_service.generate_image_prompt(param)
         return SuccessResponse(data=image_url)
     except StocklyError as e:
-        return ErrorResponse(
-            error_code=e.error_code,
-            error_message=str(e)
-        )
+        return ErrorResponse(error_code=e.error_code, error_message=str(e))
+
 
 @app.post(
     path="/save_image",
@@ -164,8 +159,7 @@ def generate_image(
     },
 )
 def save_image(
-    url: str,
-    project_io_service: ProjectIoService = Depends(get_project_io_service)
+    url: str, project_io_service: ProjectIoService = Depends(get_project_io_service)
 ) -> SuccessResponse[str] | ErrorResponse:
     """
     Save an image to the project directory.
@@ -181,13 +175,11 @@ def save_image(
         filename = project_io_service.download_image(url)
         return SuccessResponse(data=filename)
     except ProjectIOError as e:
-        return ErrorResponse(
-            error_code=e.error_code,
-            error_message=str(e)
-        )
+        return ErrorResponse(error_code=e.error_code, error_message=str(e))
+
 
 @app.post(
-    path="/upload_image",
+    path="/s3_image",
     dependencies=[
         Depends(get_aws_service),
     ],
@@ -196,18 +188,66 @@ def save_image(
         400: {"model": ErrorResponse},
     },
 )
-def upload_image(
-    param: UploadImageRequest,
-    aws_service: AWSService = Depends(get_aws_service)
-) -> SuccessResponse[str] | ErrorResponse:
+def upload_s3_image(
+    param: UploadImageRequest, aws_service: AWSService = Depends(get_aws_service)
+) -> SuccessResponse[S3Object] | ErrorResponse:
     """
     Upload an image to an S3 bucket.
     """
     try:
-        aws_service.upload_file(param)
-        return SuccessResponse(data="Image uploaded successfully.")
+        s3_object = aws_service.upload_file(param)
+        return SuccessResponse(data=s3_object)
     except Exception as e:
         return ErrorResponse(
-            error_code=400,
-            error_message=str(e)
+            error_code=status.HTTP_500_INTERNAL_SERVER_ERROR, error_message=str(e)
+        )
+
+
+@app.delete(
+    path="/s3_image",
+    dependencies=[
+        Depends(get_aws_service),
+    ],
+    responses={
+        200: {"model": SuccessResponse},
+        400: {"model": ErrorResponse},
+    },
+)
+def delete_s3_image(
+    param: DeleteImageRequest, aws_service: AWSService = Depends(get_aws_service)
+) -> SuccessResponse[str] | ErrorResponse:
+    """
+    Delete an image from an S3 bucket.
+    """
+    try:
+        aws_service.delete_file(param)
+        return SuccessResponse(data="Image deleted.")
+    except Exception as e:
+        return ErrorResponse(
+            error_code=status.HTTP_500_INTERNAL_SERVER_ERROR, error_message=str(e)
+        )
+
+
+@app.post(
+    path="/instagram_image",
+    dependencies=[
+        Depends(get_instagram_service),
+    ],
+    responses={
+        200: {"model": SuccessResponse},
+        400: {"model": ErrorResponse},
+    },
+)
+def upload_instagram_image(
+    url: str, instagram_service: InstagramService = Depends(get_instagram_service)
+) -> SuccessResponse[str] | ErrorResponse:
+    """
+    Upload an image to Instagram.
+    """
+    try:
+        instagram_service.publish_image(url)
+        return SuccessResponse(data="Image uploaded to Instagram.")
+    except Exception as e:
+        return ErrorResponse(
+            error_code=status.HTTP_500_INTERNAL_SERVER_ERROR, error_message=str(e)
         )

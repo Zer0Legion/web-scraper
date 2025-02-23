@@ -29,5 +29,10 @@ def get_prompter_service():
 def get_instagram_service():
     return InstagramService()
 
+
 def get_aws_service():
     return AWSService()
+
+
+def get_instagram_service():
+    return InstagramService()
