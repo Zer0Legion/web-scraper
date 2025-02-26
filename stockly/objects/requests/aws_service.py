@@ -1,5 +1,4 @@
 from openai import BaseModel
-from pydantic import ConfigDict
 
 
 class UploadImageRequest(BaseModel):

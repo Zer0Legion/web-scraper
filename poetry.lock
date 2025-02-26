@@ -1750,6 +1750,21 @@ docs = ["Sphinx (>=4.1.2,<4.2.0)", "sphinx-rtd-theme (>=0.5.2,<0.6.0)", "sphinxc
 test = ["aiohttp (>=3.10.5)", "flake8 (>=5.0,<6.0)", "mypy (>=0.800)", "psutil", "pyOpenSSL (>=23.0.0,<23.1.0)", "pycodestyle (>=2.9.0,<2.10.0)"]
 
 [[package]]
+name = "vercel"
+version = "0.2.1"
+description = "Vercel SDK"
+optional = false
+python-versions = ">=3.7,<4.0"
+groups = ["main"]
+files = [
+    {file = "vercel-0.2.1-py3-none-any.whl", hash = "sha256:dc7de7c73df76bbb8e7c30131125997a8aa74e126183d53e7dbd6e76931d42b6"},
+    {file = "vercel-0.2.1.tar.gz", hash = "sha256:053d634ac542b59af102251a5135a1654a74a8f5a37c6c97da61171202b60021"},
+]
+
+[package.dependencies]
+requests = ">=2.24.0,<3.0.0"
+
+[[package]]
 name = "watchfiles"
 version = "1.0.4"
 description = "Simple, modern and high performance file watching and code reload in python."
@@ -1955,5 +1970,5 @@ repair = ["scipy (>=1.6.3)"]
 
 [metadata]
 lock-version = "2.1"
-python-versions = ">=3.11"
-content-hash = "0b0740134b51fd7d2afb4751e2a86474a247cd6c7ac6c5668d19598021f82605"
+python-versions = ">=3.11,<4.0"
+content-hash = "a2db4cac0590e0511234351061e22b37520ed40e8f4115e81d85a8aa52af977d"

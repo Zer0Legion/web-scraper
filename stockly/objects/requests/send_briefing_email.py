@@ -1,6 +1,6 @@
 from openai import BaseModel
 
-from objects.requests.stock import StockRequestInfo
+from stockly.objects.requests.stock import StockRequestInfo
 
 
 class SendEmailUserRequest(BaseModel):

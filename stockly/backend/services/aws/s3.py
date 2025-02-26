@@ -1,8 +1,8 @@
 import uuid
 import boto3
 
-from objects.models.aws_service import S3Object
-from objects.requests.aws_service import DeleteImageRequest, UploadImageRequest
+from stockly.objects.models.aws_service import S3Object
+from stockly.objects.requests.aws_service import DeleteImageRequest, UploadImageRequest
 
 
 class AWSService:

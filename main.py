@@ -3,7 +3,7 @@ import requests
 import yfinance as yf
 from fastapi import Depends, FastAPI, responses
 from fastapi import status
-from backend.dependencies.base import (
+from stockly.backend.dependencies.base import (
     get_aws_service,
     get_email_service,
     get_instagram_service,
@@ -11,20 +11,20 @@ from backend.dependencies.base import (
     get_project_io_service,
     get_prompter_service,
 )
-from backend.errors.base import StocklyError
-from backend.errors.project_io import ProjectIOError
-from backend.services.aws.s3 import AWSService
-from backend.services.instagram.instagram_service import InstagramService
-from objects.api.response import ErrorResponse, SuccessResponse
+from stockly.backend.errors.base import StocklyError
+from stockly.backend.errors.project_io import ProjectIOError
+from stockly.backend.services.aws.s3 import AWSService
+from stockly.backend.services.instagram.instagram_service import InstagramService
+from stockly.objects.api.response import ErrorResponse, SuccessResponse
 
-from objects.models.aws_service import S3Object
-from objects.requests.aws_service import DeleteImageRequest, UploadImageRequest
-from objects.requests.generate_image import GenerateImageRequest
-from objects.requests.send_briefing_email import SendEmailRequest
-from backend.services.Email import EmailService
-from backend.services.Parser import ParserService
-from backend.services.ProjectIo import ProjectIoService
-from backend.services.openai.Prompter import PrompterService
+from stockly.objects.models.aws_service import S3Object
+from stockly.objects.requests.aws_service import DeleteImageRequest, UploadImageRequest
+from stockly.objects.requests.generate_image import GenerateImageRequest
+from stockly.objects.requests.send_briefing_email import SendEmailRequest
+from stockly.backend.services.Email import EmailService
+from stockly.backend.services.Parser import ParserService
+from stockly.backend.services.ProjectIo import ProjectIoService
+from stockly.backend.services.openai.Prompter import PrompterService
 
 URL = "https://www.google.com/finance/quote/"
 URL_NEWS = "https://news.google.com/search?q="
