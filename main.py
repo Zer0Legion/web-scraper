@@ -1,7 +1,5 @@
-from h11 import Response
 import requests
-import yfinance as yf
-from fastapi import Depends, FastAPI, responses
+from fastapi import Depends, FastAPI
 from fastapi import status
 from stockly.backend.dependencies.base import (
     get_aws_service,
