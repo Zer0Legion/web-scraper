@@ -1,29 +1,28 @@
 import requests
-from dotenv import dotenv_values
 
-CONFIG = {**dotenv_values("./.env")}
+from settings import Settings
 
 
 class InstagramService:
     def _create_container(self, url: str, caption: str = ""):
-        user_id = CONFIG["INSTA_USER_ID"]
+        settings = Settings().get_settings()
         response = requests.post(
-            url=f"https://graph.instagram.com/v21.0/{user_id}/media",
+            url=f"https://graph.instagram.com/v21.0/{settings.INSTA_USER_ID}/media",
             params={
                 "image_url": url,
                 "caption": caption,
-                "access_token": CONFIG["INSTA_ACCESS_TOKEN"],
+                "access_token": settings.INSTA_ACCESS_TOKEN,
             },
         )
         return response.json()
 
     def _publish_container(self, container_id: str):
-        user_id = CONFIG["INSTA_USER_ID"]
+        settings = Settings().get_settings()
         response = requests.post(
-            url=f"https://graph.instagram.com/v21.0/{user_id}/media_publish",
+            url=f"https://graph.instagram.com/v21.0/{settings.INSTA_USER_ID}/media_publish",
             headers={"Content-Type": "application/json"},
             params={
-                "access_token": CONFIG["INSTA_ACCESS_TOKEN"],
+                "access_token": settings.INSTA_ACCESS_TOKEN,
                 "creation_id": container_id,
             },
         )

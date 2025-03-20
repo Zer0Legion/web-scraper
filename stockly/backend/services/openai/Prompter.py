@@ -1,39 +1,31 @@
-from openai import OpenAI
-from dotenv import dotenv_values
 import requests
+from openai import OpenAI
 
-from stockly.backend.errors.env import CredentialsNotSuppliedError
-from stockly.objects.requests.generate_image import GenerateImageRequest, SentimentEnum
-
-CONFIG = {**dotenv_values("./.env")}
-URL = "https://api.openai.com/v1/chat/completions"
-
-PROMPT = """
-I have scraped several Google News articles related to the stock {}. Please provide the following:
-
-1. A concise summary of the 3 main key points from these news articles. Prefix this with a '###' header, named "Summary:".
-2. An analysis of the sentiment (ecstatic, positive, neutral, negative, disastrous) of the articles based on how they affect the stock's outlook. Prefix this with a '###' header, named "Sentiment Analysis: <Your evaluation>".
-{}
-"""
+from settings import Settings
+from stockly.objects.requests.generate_image import GenerateImageRequest
 
 
 class PrompterService:
     def __init__(self):
         self.cache = {}
-
-        if not CONFIG["OPENAI_API_KEY"]:
-            raise CredentialsNotSuppliedError(["open ai api key"])
-        self.api_key = CONFIG["OPENAI_API_KEY"]
+        self.settings = Settings().get_settings()
 
         self.client = OpenAI(
             organization="Personal",
             project="Default project",
-            api_key=self.api_key,
+            api_key=self.settings.OPENAI_API_KEY,
         )
 
     def generate_written_prompt(self, stock_ticker: str, formatted_html: str):
         """
         Generate a written prompt for the stock based on the formatted HTML.
+        """
+        PROMPT = """
+        I have scraped several Google News articles related to the stock {}. Please provide the following:
+
+        1. A concise summary of the 3 main key points from these news articles. Prefix this with a '###' header, named "Summary:".
+        2. An analysis of the sentiment (ecstatic, positive, neutral, negative, disastrous) of the articles based on how they affect the stock's outlook. Prefix this with a '###' header, named "Sentiment Analysis: <Your evaluation>".
+        {}
         """
         if stock_ticker in self.cache:
             return self.cache[stock_ticker]
@@ -41,7 +33,7 @@ class PrompterService:
             text = PROMPT.format(stock_ticker, formatted_html)
             headers = {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer " + self.api_key,
+                "Authorization": "Bearer " + self.settings.OPENAI_API_KEY,
             }
             data = {
                 "model": "gpt-4o-mini",
@@ -49,7 +41,9 @@ class PrompterService:
                 "temperature": 0.7,
             }
 
-            response = requests.post(URL, headers=headers, json=data).json()
+            response = requests.post(
+                self.settings.OPENAI_URL, headers=headers, json=data
+            ).json()
             self.cache[stock_ticker] = response
             return response
 
@@ -76,7 +70,7 @@ class PrompterService:
 
         headers = {
             "Content-Type": "application/json",
-            "Authorization": "Bearer " + self.api_key,
+            "Authorization": "Bearer " + self.settings.OPENAI_API_KEY,
         }
 
         data = {"model": "dall-e-3", "prompt": prompt, "size": "1024x1024", "n": 1}

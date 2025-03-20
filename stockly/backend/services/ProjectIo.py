@@ -1,27 +1,22 @@
 # Class to handle input/output operations
 
-import os
 import json
-from dotenv import dotenv_values
+import os
+
 import requests
 
+from settings import Settings
 from stockly.backend.errors.project_io import ProjectIOError
 from stockly.objects.requests.stock import StockRequestInfo
-
-from stockly.backend.errors.env import EnvironmentVariableNotSuppliedError
 
 
 class ProjectIoService:
     def __init__(self):
-        self.CONTENT_PREFIX = "Dear {},\n\nGood morning from all of us at {}! Here is our curated summary for you:\n\n# Report of your selected stocks:\n\n"
-        CONFIG = {**dotenv_values("./.env")}
-        if not CONFIG["ORG_NAME"]:
-            raise EnvironmentVariableNotSuppliedError(["organization name"])
+        self.settings = Settings().get_settings()
+
         self.db = {}
         self.stocks = {}
         self.content = ""
-
-        self.org_name = CONFIG["ORG_NAME"]
 
     def load_stocks(self, filename: os.PathLike) -> dict:
         with open(filename, "r") as f:
@@ -34,12 +29,14 @@ class ProjectIoService:
             return self.db
 
     def generate_intro(self, user_email: str):
-        org_name: str = self.org_name
+        org_name: str = self.settings.ORG_NAME
 
         if user_email in self.db:
-            self.content = self.CONTENT_PREFIX.format(self.db[user_email], org_name)
+            self.content = self.settings.CONTENT_PREFIX.format(
+                self.db[user_email], org_name
+            )
         else:
-            self.content = self.CONTENT_PREFIX.format(user_email, org_name)
+            self.content = self.settings.CONTENT_PREFIX.format(user_email, org_name)
 
     def add_next_stock(self, stock: StockRequestInfo):
         self.content += f"## {stock.long_name} ({stock.ticker})\n\n"

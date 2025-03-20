@@ -9,8 +9,12 @@ class Settings(BaseModel):
     EMAIL_ADDRESS: str = "EMAIL_ADDRESS"
     EMAIL_PASSWORD: str = "EMAIL_PASSWORD"
 
+    # Briefing email
+    CONTENT_PREFIX: str = "Dear {},\n\nGood morning from all of us at {}! Here is our curated summary for you:\n\n# Report of your selected stocks:\n\n"
+
     # OpenAI
     OPENAI_API_KEY: str = "OPENAI_API_KEY"
+    OPENAI_URL: str = "https://api.openai.com/v1/chat/completions"
 
     # Instagram
     INSTA_USER_ID: str = "user"
