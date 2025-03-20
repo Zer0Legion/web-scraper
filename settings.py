@@ -22,9 +22,6 @@ class Settings(BaseModel):
 
     URL_NEWS: str = "https://news.google.com/search?q="
 
-    # T&Cs effective date
-    TNC_EFFECTIVE_DATE: str = "22 March 2025"
-
     def get_settings(self) -> "Settings":
         config = {**dotenv_values("./.env")}
         for key, value in config.items():
