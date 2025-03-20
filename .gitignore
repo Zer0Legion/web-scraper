@@ -6,3 +6,4 @@
 .env
 
 .aws/
+.vercel

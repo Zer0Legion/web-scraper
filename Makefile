@@ -8,3 +8,7 @@ check:
 
 dev:
 	poetry run fastapi dev main.py
+
+deploy:
+	grep -oP '(?<=^\s*")[^"]+(?=")' "pyproject.toml" | sed 's/ (\(.*\))/>=\1/' > "requirements.txt"
+	poetry run vercel
