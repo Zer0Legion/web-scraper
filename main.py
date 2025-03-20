@@ -1,11 +1,10 @@
-import requests
-from fastapi import Depends, FastAPI
-from fastapi import status
+from fastapi import Depends, FastAPI, status
+
+from settings import Settings
 from stockly.backend.dependencies.base import (
     get_aws_service,
-    get_email_service,
+    get_briefing_email_service,
     get_instagram_service,
-    get_parser_service,
     get_project_io_service,
     get_prompter_service,
 )
@@ -13,21 +12,20 @@ from stockly.backend.errors.base import StocklyError
 from stockly.backend.errors.project_io import ProjectIOError
 from stockly.backend.services.aws.s3 import AWSService
 from stockly.backend.services.instagram.instagram_service import InstagramService
+from stockly.backend.services.openai.Prompter import PrompterService
+from stockly.backend.services.ProjectIo import ProjectIoService
+from stockly.backend.services.send_briefing_email_service import BriefingEmailService
 from stockly.objects.api.response import ErrorResponse, SuccessResponse
-
 from stockly.objects.models.aws_service import S3Object
 from stockly.objects.requests.aws_service import DeleteImageRequest, UploadImageRequest
 from stockly.objects.requests.generate_image import GenerateImageRequest
 from stockly.objects.requests.send_briefing_email import SendEmailRequest
-from stockly.backend.services.Email import EmailService
-from stockly.backend.services.Parser import ParserService
-from stockly.backend.services.ProjectIo import ProjectIoService
-from stockly.backend.services.openai.Prompter import PrompterService
 
 URL = "https://www.google.com/finance/quote/"
-URL_NEWS = "https://news.google.com/search?q="
+
 
 app = FastAPI()
+settings = Settings().get_settings()
 
 
 @app.get("/")
@@ -46,10 +44,7 @@ def home():
 @app.post(
     path="/send_email",
     dependencies=[
-        Depends(get_email_service),
-        Depends(get_parser_service),
-        Depends(get_project_io_service),
-        Depends(get_prompter_service),
+        Depends(get_briefing_email_service),
     ],
     responses={
         200: {"model": SuccessResponse},
@@ -58,10 +53,7 @@ def home():
 )
 def send_email(
     param: SendEmailRequest,
-    email_service: EmailService = Depends(get_email_service),
-    parser_service: ParserService = Depends(get_parser_service),
-    project_io_service: ProjectIoService = Depends(get_project_io_service),
-    prompter_service: PrompterService = Depends(get_prompter_service),
+    briefing_email_service: BriefingEmailService = Depends(get_briefing_email_service),
 ):
     """
     Send an email to the user with the stock analysis.
@@ -70,14 +62,8 @@ def send_email(
     ----------
     param : SendEmailRequest
         The request object containing the user requests.
-    email_service : EmailService
-        The email service dependency, auto inject by FastAPI.
-    parser_service : ParserService
-        The parser service dependency, auto inject by FastAPI.
-    project_io_service : ProjectIoService
-        The project io service dependency, auto inject by FastAPI.
-    prompter_service : PrompterService
-        The prompter service dependency, auto inject by FastAPI.
+    briefing_email_service : BriefingEmailService
+        The briefing email service dependency, auto inject by FastAPI.
 
     Returns
     -------
@@ -85,25 +71,7 @@ def send_email(
         Email sent successfully.
     """
     try:
-        for request in param.user_requests:
-            stocks = request.stocks
-            project_io_service.generate_intro(request.name)
-
-            for stock in stocks:
-                project_io_service.add_next_stock(stock)
-
-                html_response = requests.get(URL_NEWS + stock.full_name).text
-
-                cleaned_html = parser_service.format_html(stock, html_response)
-
-                chatgpt_response = prompter_service.generate_written_prompt(
-                    stock.ticker, cleaned_html
-                )
-                chatgpt_text = chatgpt_response["choices"][0]["message"]["content"]
-
-                project_io_service.append_report(chatgpt_text + "\n\n")
-
-            email_service.send_email(request.email, project_io_service.content)
+        briefing_email_service.send_briefing_email(param)
 
         return SuccessResponse(data="Email sent successfully.")
     except StocklyError as e:

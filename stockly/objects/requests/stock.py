@@ -1,6 +1,6 @@
+import yfinance as yf
 from pydantic import BaseModel
 
-import yfinance as yf
 
 class StockRequestInfo(BaseModel):
     exchange: str
@@ -13,5 +13,6 @@ class StockRequestInfo(BaseModel):
     @property
     def long_name(self) -> str:
         """Return long name of stock."""
-        
-        return yf.Ticker(self.ticker).info["longName"]
+
+        ticker = yf.Ticker(self.ticker)
+        return ticker.info.get("longName", "Unknown Stock")

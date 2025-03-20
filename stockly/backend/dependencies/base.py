@@ -1,9 +1,10 @@
 from stockly.backend.services.aws.s3 import AWSService
 from stockly.backend.services.Email import EmailService
-from stockly.backend.services.Parser import ParserService
-from stockly.backend.services.ProjectIo import ProjectIoService
 from stockly.backend.services.instagram.instagram_service import InstagramService
 from stockly.backend.services.openai.Prompter import PrompterService
+from stockly.backend.services.Parser import ParserService
+from stockly.backend.services.ProjectIo import ProjectIoService
+from stockly.backend.services.send_briefing_email_service import BriefingEmailService
 
 
 def __init__():
@@ -32,3 +33,12 @@ def get_instagram_service():
 
 def get_aws_service():
     return AWSService()
+
+
+def get_briefing_email_service():
+    return BriefingEmailService(
+        email_service=get_email_service(),
+        parser_service=get_parser_service(),
+        project_io_service=get_project_io_service(),
+        prompter_service=get_prompter_service(),
+    )
