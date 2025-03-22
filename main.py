@@ -1,4 +1,5 @@
 from fastapi import Depends, FastAPI, status
+from fastapi.responses import HTMLResponse
 
 from settings import Settings
 from stockly.backend.dependencies.base import (
@@ -7,6 +8,7 @@ from stockly.backend.dependencies.base import (
     get_instagram_service,
     get_project_io_service,
     get_prompter_service,
+    get_tnc_service,
 )
 from stockly.backend.errors.base import StocklyError
 from stockly.backend.errors.project_io import ProjectIOError
@@ -15,6 +17,7 @@ from stockly.backend.services.instagram.instagram_service import InstagramServic
 from stockly.backend.services.openai.Prompter import PrompterService
 from stockly.backend.services.ProjectIo import ProjectIoService
 from stockly.backend.services.send_briefing_email_service import BriefingEmailService
+from stockly.backend.terms_and_conditions import TermsAndConditionsService
 from stockly.objects.api.response import ErrorResponse, SuccessResponse
 from stockly.objects.models.aws_service import S3Object
 from stockly.objects.requests.aws_service import DeleteImageRequest, UploadImageRequest
@@ -217,3 +220,35 @@ def upload_instagram_image(
         return ErrorResponse(
             error_code=status.HTTP_500_INTERNAL_SERVER_ERROR, error_message=str(e)
         )
+
+
+@app.get(
+    path="/privacy_policy",
+    dependencies=[Depends(get_tnc_service)],
+    response_class=HTMLResponse,
+)
+def get_privacy_policy(
+    tnc_service: TermsAndConditionsService = Depends(get_tnc_service),
+):
+    """
+    Get the privacy policy.
+    """
+    return HTMLResponse(
+        status_code=status.HTTP_200_OK, content=tnc_service.get_privacy_policy()
+    )
+
+
+@app.get(
+    path="/terms_of_service",
+    dependencies=[Depends(get_tnc_service)],
+    response_class=HTMLResponse,
+)
+def get_terms_of_service(
+    tnc_service: TermsAndConditionsService = Depends(get_tnc_service),
+):
+    """
+    Get the privacy policy.
+    """
+    return HTMLResponse(
+        status_code=status.HTTP_200_OK, content=tnc_service.get_terms_of_service()
+    )

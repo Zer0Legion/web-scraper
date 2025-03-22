@@ -5,6 +5,7 @@ from stockly.backend.services.openai.Prompter import PrompterService
 from stockly.backend.services.Parser import ParserService
 from stockly.backend.services.ProjectIo import ProjectIoService
 from stockly.backend.services.send_briefing_email_service import BriefingEmailService
+from stockly.backend.terms_and_conditions import TermsAndConditionsService
 
 
 def __init__():
@@ -42,3 +43,7 @@ def get_briefing_email_service():
         project_io_service=get_project_io_service(),
         prompter_service=get_prompter_service(),
     )
+
+
+def get_tnc_service():
+    return TermsAndConditionsService()
