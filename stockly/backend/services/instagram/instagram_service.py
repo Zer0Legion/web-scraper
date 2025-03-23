@@ -1,6 +1,7 @@
 import requests
 
 from settings import Settings
+from stockly.backend.errors.external import ExternalServiceError
 
 
 class InstagramService:
@@ -14,7 +15,10 @@ class InstagramService:
                 "access_token": settings.INSTA_ACCESS_TOKEN,
             },
         )
-        return response.json()
+        if response:
+            return response.json()
+        else:
+            raise ExternalServiceError("Failed to create container")
 
     def _publish_container(self, container_id: str):
         settings = Settings().get_settings()
@@ -26,7 +30,10 @@ class InstagramService:
                 "creation_id": container_id,
             },
         )
-        return response.json()
+        if response:
+            return response.json()
+        else:
+            raise ExternalServiceError("Failed to publish container")
 
     def publish_image(self, url: str, caption: str = "") -> dict | None:
         """
@@ -44,13 +51,16 @@ class InstagramService:
         dict | None
             the success response, or None
         """
-        container = self._create_container(url, caption)
         try:
+            container = self._create_container(url, caption)
             container_id = container.get("id")
             return self._publish_container(container_id)
         except KeyError as e:
             print("Key not found in response:", e)
             print("Response:", container)
+            return None
+        except ExternalServiceError as e:
+            print("External service error:", e)
             return None
 
 
