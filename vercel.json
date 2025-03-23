@@ -1,17 +1,17 @@
-{  
-    "builds": [
-        {
-            "src": "main.py",
-            "use": "@vercel/python",
-            "config": {
-                "buildCommand": "pip install poetry && poetry install && poetry run fastapi dev main.py"
-            }
-        }
-    ],
-    "routes": [
-        {
-            "src": "/(.*)",
-            "dest": "main.py"
-        }
-    ]
+{
+  "builds": [
+    {
+      "src": "main.py",
+      "use": "@vercel/python",
+      "config": {
+        "buildCommand": "pip install poetry && poetry install && poetry run fastapi dev main.py"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "main.py"
+    }
+  ]
 }

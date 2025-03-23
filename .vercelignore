@@ -1,0 +1,10 @@
+.venv/*
+.git/*
+.vscode/*
+__pycache__/*
+.ruff_cache/*
+.github/*
+.aws/*
+.env
+*.md
+*.mustache
